@@ -8,8 +8,8 @@ var original_barrel_z = -0.72
 var accent_ring = null
 
 func setup():
-	# Compact foreground silhouette so the cannon stays fully visible above mobile controls.
-	scale = Vector3.ONE * 0.72
+	# Compact foreground silhouette sized to stay fully visible above mobile controls.
+	scale = Vector3.ONE * 0.54
 	_build_model()
 
 func _build_model():
