@@ -41,6 +41,26 @@ jobs:
           godot --headless --path . --quit-after 8 2>&1 | tee smoke.log
           if grep -E "SCRIPT ERROR|Parse Error|Error importing|Failed to load script|Invalid call" smoke.log; then exit 1; fi
 
+      - name: Install visual QA dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq xvfb fontconfig libgl1-mesa-dri libglx-mesa0 >/dev/null
+
+      - name: Render gameplay screenshot
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 720x1280x24" godot --path . res://scenes/QACapture.tscn --rendering-method gl_compatibility --audio-driver Dummy 2>&1 | tee visual.log
+          if grep -E "SCRIPT ERROR|Parse Error|Failed to load script|Invalid call|QA screenshot save failed" visual.log; then exit 1; fi
+          test -s qa_level1.png
+
+      - name: Upload visual QA screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-level1
+          path: qa_level1.png
+          retention-days: 7
+
       - name: Export Web
         run: |
           mkdir -p build/web
