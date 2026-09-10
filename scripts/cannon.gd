@@ -8,6 +8,8 @@ var original_barrel_z = -0.72
 var accent_ring = null
 
 func setup():
+	# Compact foreground silhouette so the cannon stays fully visible above mobile controls.
+	scale = Vector3.ONE * 0.72
 	_build_model()
 
 func _build_model():
@@ -19,7 +21,7 @@ func _build_model():
 	base_mesh.radial_segments = 24
 	base.mesh = base_mesh
 	base.position.y = 0.18
-	base.material_override = _mat(Color("394866"), 0.35, 0.25)
+	base.material_override = _mat(Color("2e405e"), 0.42, 0.18)
 	add_child(base)
 
 	for side in [-1, 1]:
@@ -32,7 +34,7 @@ func _build_model():
 		wheel.mesh = wheel_mesh
 		wheel.rotation.z = PI * 0.5
 		wheel.position = Vector3(float(side) * 0.62, 0.28, 0.0)
-		wheel.material_override = _mat(Color("ef8d42"), 0.48, 0.05)
+		wheel.material_override = _mat(Color("d9752f"), 0.58, 0.02)
 		add_child(wheel)
 
 	turret = Node3D.new()
@@ -46,7 +48,7 @@ func _build_model():
 	hub.mesh = hub_mesh
 	hub.position.y = 0.58
 	hub.scale = Vector3(1.0, 0.68, 1.0)
-	hub.material_override = _mat(Color("526987"), 0.3, 0.18)
+	hub.material_override = _mat(Color("425b7b"), 0.40, 0.14)
 	turret.add_child(hub)
 
 	barrel = MeshInstance3D.new()
@@ -58,7 +60,7 @@ func _build_model():
 	barrel.mesh = barrel_mesh
 	barrel.rotation.x = PI * 0.5
 	barrel.position = Vector3(0, 0.67, original_barrel_z)
-	barrel.material_override = _mat(Color("27364f"), 0.28, 0.32)
+	barrel.material_override = _mat(Color("1e304c"), 0.38, 0.22)
 	turret.add_child(barrel)
 
 	accent_ring = MeshInstance3D.new()
@@ -70,7 +72,7 @@ func _build_model():
 	accent_ring.mesh = ring_mesh
 	accent_ring.rotation.x = PI * 0.5
 	accent_ring.position = Vector3(0, 0.67, -1.48)
-	accent_ring.material_override = _mat(Color("f5b947"), 0.24, 0.35)
+	accent_ring.material_override = _mat(Color("e6a236"), 0.35, 0.18)
 	turret.add_child(accent_ring)
 
 	muzzle = Marker3D.new()
@@ -86,10 +88,10 @@ func aim_at(world_point):
 
 func set_ammo_color(color):
 	if accent_ring:
-		var mat = _mat(color, 0.2, 0.28)
+		var mat = _mat(color, 0.28, 0.18)
 		mat.emission_enabled = true
 		mat.emission = color
-		mat.emission_energy_multiplier = 0.55
+		mat.emission_energy_multiplier = 0.32
 		accent_ring.material_override = mat
 
 func get_muzzle_position():
