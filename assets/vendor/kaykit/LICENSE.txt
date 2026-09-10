@@ -1,0 +1,14 @@
+KayKit asset excerpts used by Smash Drop MVP
+
+KayKit : Prototype Bits (1.0) and Medieval Hexagon Pack (1.0)
+Created/distributed by Kay Lousberg (www.kaylousberg.com)
+
+License: Creative Commons Zero (CC0 1.0 Universal)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+These assets are free to use in personal, educational and commercial projects.
+Attribution is not required. Included as a courtesy.
+
+Source repositories:
+https://github.com/KayKit-Game-Assets/KayKit-Prototype-Bits-1.0
+https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0
