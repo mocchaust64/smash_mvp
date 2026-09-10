@@ -102,7 +102,7 @@ func _start_level(index):
 	await get_tree().process_frame
 	world.sleep_stack()
 	if current_level == 0:
-		ui.show_toast("TAP WOOD • SHOOT THE CENTER SUPPORT",Color("ff9d3d"),2.5)
+		ui.show_toast("WOOD → CENTER SUPPORT",Color("ff9d3d"),2.3)
 
 func _try_shoot(screen_pos):
 	if ammo[selected_ammo] <= 0:
