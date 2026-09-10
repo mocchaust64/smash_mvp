@@ -44,7 +44,7 @@ jobs:
       - name: Install visual QA dependencies
         run: |
           apt-get update -qq
-          apt-get install -y -qq xvfb fontconfig libgl1-mesa-dri libglx-mesa0 >/dev/null
+          apt-get install -y -qq xvfb fontconfig libgl1-mesa-dri libglx-mesa0 libxcursor1 libxinerama1 libxi6 libxrandr2 libxrender1 libxext6 libx11-6 >/dev/null
 
       - name: Render gameplay screenshot
         env:
