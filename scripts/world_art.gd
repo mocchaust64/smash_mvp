@@ -5,10 +5,10 @@ const BlockScript = preload("res://scripts/block.gd")
 const BallScript = preload("res://scripts/ball.gd")
 const CannonScript = preload("res://scripts/cannon.gd")
 
-const MATERIAL_COLORS = [Color("e7a14b"), Color("78849a"), Color("6bd6ff")]
-const WORLD_SKY = [Color("83d6ff"), Color("62c8f2"), Color("b5e8ff"), Color("ffac7a")]
-const WORLD_GROUND = [Color("69b95e"), Color("e7c775"), Color("d7eff7"), Color("8b6ab3")]
-const WORLD_TRAY = [Color("f3cf82"), Color("f1bd74"), Color("dceef4"), Color("e7a56a")]
+const MATERIAL_COLORS = [Color("d98232"), Color("65758b"), Color("47bfe8")]
+const WORLD_SKY = [Color("73cdf2"), Color("52b9dc"), Color("9edbf0"), Color("ee956c")]
+const WORLD_GROUND = [Color("62ad55"), Color("d9b864"), Color("c1e5ef"), Color("735695")]
+const WORLD_TRAY = [Color("dca956"), Color("df9d51"), Color("c5dde7"), Color("ce8753")]
 
 var controller
 var environment: Environment
@@ -31,7 +31,6 @@ func setup(owner_controller):
 	_build_world()
 
 func _load_external_assets():
-	# Load after Godot has imported resources. Avoid compile-time raw OBJ preloads.
 	var tree_res = load("res://assets/vendor/kaykit/tree_single_A.obj")
 	if tree_res is Mesh:
 		kaykit_tree = tree_res
@@ -54,31 +53,30 @@ func _build_world():
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = WORLD_SKY[0]
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("fff4df")
-	environment.ambient_light_energy = 1.25
-	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.ambient_light_color = Color("dceaff")
+	environment.ambient_light_energy = 0.48
 	world_env.environment = environment
 	add_child(world_env)
 
 	var key = DirectionalLight3D.new()
-	key.rotation_degrees = Vector3(-48,-28,0)
-	key.light_energy = 1.55
-	key.light_color = Color("fff1d2")
+	key.rotation_degrees = Vector3(-48,-30,0)
+	key.light_energy = 0.86
+	key.light_color = Color("fff0cf")
 	key.shadow_enabled = true
 	add_child(key)
 
 	var fill = DirectionalLight3D.new()
-	fill.rotation_degrees = Vector3(-30,145,0)
-	fill.light_energy = 0.42
-	fill.light_color = Color("cfeaff")
+	fill.rotation_degrees = Vector3(-25,150,0)
+	fill.light_energy = 0.18
+	fill.light_color = Color("bcdfff")
 	add_child(fill)
 
 	camera = Camera3D.new()
-	camera.position = Vector3(0,6.4,13.2)
-	camera.fov = 39.0
+	camera.position = Vector3(0,5.9,14.7)
+	camera.fov = 42.0
 	camera.current = true
 	add_child(camera)
-	camera.look_at(Vector3(0,1.05,0), Vector3.UP)
+	camera.look_at(Vector3(0,0.15,0), Vector3.UP)
 	camera_base_position = camera.position
 
 	deco_root = Node3D.new()
@@ -98,8 +96,16 @@ func _build_world():
 	cannon = CannonScript.new()
 	cannon.name = "Cannon"
 	add_child(cannon)
-	cannon.position = Vector3(0,-2.55,4.45)
+	cannon.position = Vector3(0,-1.55,4.55)
 	cannon.setup()
+
+func frame_level(max_y):
+	# Frame the puzzle and foreground cannon inside the safe region between HUD and ammo bar.
+	var center_y = (float(max_y) - 1.55) * 0.5 - 0.30
+	var cam_y = center_y + 5.8
+	camera.position = Vector3(0,cam_y,14.9)
+	camera.look_at(Vector3(0,center_y,0), Vector3.UP)
+	camera_base_position = camera.position
 
 func _build_ground():
 	var ground = StaticBody3D.new()
@@ -113,7 +119,7 @@ func _build_ground():
 	var box = BoxMesh.new()
 	box.size = Vector3(24,0.5,20)
 	ground_mesh.mesh = box
-	ground_mesh.material_override = make_mat(WORLD_GROUND[0],0.92,0.0)
+	ground_mesh.material_override = make_mat(WORLD_GROUND[0],0.96,0.0)
 	ground.add_child(ground_mesh)
 	var collision = CollisionShape3D.new()
 	var shape = BoxShape3D.new()
@@ -131,10 +137,10 @@ func _build_tray():
 	tray_root.add_child(body)
 	var tray = MeshInstance3D.new()
 	var tray_box = BoxMesh.new()
-	tray_box.size = Vector3(7.0,0.42,4.6)
+	tray_box.size = Vector3(6.8,0.40,4.45)
 	tray.mesh = tray_box
 	tray.position = Vector3(0,-0.12,0)
-	tray.material_override = make_mat(WORLD_TRAY[0],0.54,0.0)
+	tray.material_override = make_mat(WORLD_TRAY[0],0.62,0.0)
 	body.add_child(tray)
 	tray_meshes.append(tray)
 	var c = CollisionShape3D.new()
@@ -144,33 +150,32 @@ func _build_tray():
 	c.position = tray.position
 	body.add_child(c)
 
-	# Rounded-looking toy rim.
-	for data in [[0,0.18,-2.22,7.15,0.34,0.22],[0,0.18,2.22,7.15,0.34,0.22],[-3.42,0.18,0,0.26,0.34,4.25],[3.42,0.18,0,0.26,0.34,4.25]]:
+	for data in [[0,0.18,-2.14,6.9,0.30,0.18],[0,0.18,2.14,6.9,0.30,0.18],[-3.32,0.18,0,0.22,0.30,4.05],[3.32,0.18,0,0.22,0.30,4.05]]:
 		var rim = MeshInstance3D.new()
 		var rb = BoxMesh.new()
 		rb.size = Vector3(float(data[3]),float(data[4]),float(data[5]))
 		rim.mesh = rb
 		rim.position = Vector3(float(data[0]),float(data[1]),float(data[2]))
-		rim.material_override = make_mat(Color("dfb766"),0.5,0.0)
+		rim.material_override = make_mat(Color("bd8437"),0.66,0.0)
 		tray_root.add_child(rim)
 
 	var pedestal = MeshInstance3D.new()
 	var pm = CylinderMesh.new()
-	pm.top_radius = 1.5
-	pm.bottom_radius = 2.15
-	pm.height = 1.05
+	pm.top_radius = 1.35
+	pm.bottom_radius = 2.0
+	pm.height = 0.92
 	pm.radial_segments = 32
 	pedestal.mesh = pm
-	pedestal.position = Vector3(0,-0.82,0.15)
-	pedestal.material_override = make_mat(Color("d1b483"),0.72,0.0)
+	pedestal.position = Vector3(0,-0.76,0.10)
+	pedestal.material_override = make_mat(Color("b58a55"),0.82,0.0)
 	tray_root.add_child(pedestal)
 
 func apply_world_theme(world_index):
 	var w = clamp(int(world_index),0,3)
 	environment.background_color = WORLD_SKY[w]
-	ground_mesh.material_override = make_mat(WORLD_GROUND[w],0.9,0.0)
+	ground_mesh.material_override = make_mat(WORLD_GROUND[w],0.94,0.0)
 	for mesh in tray_meshes:
-		mesh.material_override = make_mat(WORLD_TRAY[w],0.54,0.0)
+		mesh.material_override = make_mat(WORLD_TRAY[w],0.62,0.0)
 	for child in deco_root.get_children():
 		child.queue_free()
 	match w:
@@ -180,49 +185,50 @@ func apply_world_theme(world_index):
 		3: _build_sunset()
 
 func _build_meadow():
-	_add_hill(Vector3(-5.4,-2.1,-6.4),Vector3(4.8,2.5,2.5),Color("71c45f"))
-	_add_hill(Vector3(4.9,-2.2,-7.0),Vector3(5.2,2.3,2.8),Color("58b255"))
-	_add_cloud(Vector3(-4.3,5.6,-7.5),1.05)
-	_add_cloud(Vector3(4.6,6.1,-8.0),0.82)
-	_add_external_tree(Vector3(-5.3,-3.0,-3.9),2.5,Color("439648"),-0.2)
-	_add_external_tree(Vector3(5.2,-3.0,-4.2),2.3,Color("4da251"),0.2)
-	_add_external_rock(Vector3(-4.0,-3.03,-2.7),2.0,Color("768895"))
+	_add_hill(Vector3(-5.2,-2.0,-6.8),Vector3(4.6,2.3,2.5),Color("4d9d48"))
+	_add_hill(Vector3(4.8,-2.05,-7.2),Vector3(4.9,2.15,2.7),Color("438f43"))
+	_add_cloud(Vector3(-4.2,5.4,-7.8),1.0)
+	_add_cloud(Vector3(4.4,5.8,-8.2),0.78)
+	_add_external_tree(Vector3(-4.7,-2.95,-4.2),3.1,Color("367f39"),-0.2)
+	_add_external_tree(Vector3(4.8,-2.95,-4.4),2.9,Color("3c8b40"),0.2)
+	_add_external_rock(Vector3(-3.9,-3.0,-2.8),2.2,Color("566d7c"))
+	_add_external_rock(Vector3(4.0,-3.0,-3.0),1.7,Color("647a87"))
 
 func _build_coast():
-	_add_hill(Vector3(-5.3,-2.35,-7.2),Vector3(4.3,1.7,2.6),Color("499c99"))
-	_add_hill(Vector3(5.0,-2.4,-7.5),Vector3(4.4,1.6,2.4),Color("3d868e"))
-	_add_cloud(Vector3(-4.4,5.8,-7.8),1.0)
-	_add_cloud(Vector3(4.5,5.35,-8.4),0.72)
-	_add_external_tree(Vector3(5.4,-3.0,-4.6),2.0,Color("2d8c72"),0.25)
-	_add_external_rock(Vector3(-5.0,-3.0,-3.0),2.6,Color("577f86"))
-	_add_external_rock(Vector3(5.0,-3.0,-3.2),1.8,Color("71969a"))
+	_add_hill(Vector3(-5.2,-2.3,-7.3),Vector3(4.3,1.7,2.6),Color("348789"))
+	_add_hill(Vector3(5.0,-2.35,-7.5),Vector3(4.4,1.6,2.4),Color("2f7780"))
+	_add_cloud(Vector3(-4.3,5.6,-7.8),0.95)
+	_add_cloud(Vector3(4.4,5.2,-8.4),0.70)
+	_add_external_tree(Vector3(5.2,-2.95,-4.5),2.6,Color("24765f"),0.25)
+	_add_external_rock(Vector3(-4.8,-3.0,-3.0),2.7,Color("416c75"))
+	_add_external_rock(Vector3(4.9,-3.0,-3.2),2.0,Color("537f83"))
 
 func _build_ice():
-	_add_hill(Vector3(-5.2,-2.15,-7.3),Vector3(4.8,2.4,2.7),Color("b8e8f5"))
-	_add_hill(Vector3(5.0,-2.2,-7.0),Vector3(4.6,2.2,2.5),Color("9fd6e8"))
-	_add_cloud(Vector3(-4.6,5.9,-7.4),0.9)
-	for x in [-5.2,-4.5,4.5,5.3]:
-		_add_crystal(Vector3(x,-2.85,-4.0),Color("6fd7ff"))
-	_add_external_rock(Vector3(5.0,-3.0,-3.2),2.3,Color("b7e0eb"))
+	_add_hill(Vector3(-5.1,-2.1,-7.4),Vector3(4.7,2.35,2.7),Color("8cc8dd"))
+	_add_hill(Vector3(4.9,-2.15,-7.0),Vector3(4.5,2.15,2.5),Color("76b5cd"))
+	_add_cloud(Vector3(-4.5,5.7,-7.5),0.86)
+	for x in [-5.0,-4.3,4.3,5.1]:
+		_add_crystal(Vector3(x,-2.82,-4.0),Color("3dbbe8"))
+	_add_external_rock(Vector3(4.9,-3.0,-3.2),2.4,Color("8fc7d7"))
 
 func _build_sunset():
-	_add_hill(Vector3(-5.3,-2.05,-7.4),Vector3(5.0,2.5,2.6),Color("8460a3"))
-	_add_hill(Vector3(5.0,-2.15,-7.1),Vector3(4.8,2.3,2.5),Color("704e91"))
-	_add_cloud(Vector3(-4.7,5.7,-7.4),0.88,Color("ffe0cf"))
+	_add_hill(Vector3(-5.2,-2.0,-7.4),Vector3(4.8,2.4,2.6),Color("62477f"))
+	_add_hill(Vector3(4.9,-2.1,-7.1),Vector3(4.7,2.2,2.5),Color("513a70"))
+	_add_cloud(Vector3(-4.6,5.5,-7.5),0.86,Color("f6c9b4"))
 	var sun = MeshInstance3D.new()
 	var sphere = SphereMesh.new()
-	sphere.radius = 1.05
-	sphere.height = 2.1
+	sphere.radius = 1.0
+	sphere.height = 2.0
 	sun.mesh = sphere
-	sun.position = Vector3(4.8,5.2,-9.5)
-	var mat = make_mat(Color("ffd06a"),0.2,0.0)
+	sun.position = Vector3(4.7,5.0,-9.5)
+	var mat = make_mat(Color("e9a944"),0.25,0.0)
 	mat.emission_enabled = true
-	mat.emission = Color("ffb34a")
-	mat.emission_energy_multiplier = 1.25
+	mat.emission = Color("dc8d32")
+	mat.emission_energy_multiplier = 0.55
 	sun.material_override = mat
 	deco_root.add_child(sun)
-	_add_external_tree(Vector3(-5.6,-3.0,-4.8),2.3,Color("503b70"),-0.15)
-	_add_external_rock(Vector3(5.1,-3.0,-3.2),2.2,Color("765e8c"))
+	_add_external_tree(Vector3(-5.4,-2.95,-4.8),2.8,Color("392a52"),-0.15)
+	_add_external_rock(Vector3(5.0,-3.0,-3.2),2.3,Color("59456e"))
 
 func _add_hill(pos,scale_value,color):
 	var mesh = MeshInstance3D.new()
@@ -234,10 +240,10 @@ func _add_hill(pos,scale_value,color):
 	mesh.mesh = sphere
 	mesh.position = pos
 	mesh.scale = scale_value
-	mesh.material_override = make_mat(color,0.9,0.0)
+	mesh.material_override = make_mat(color,0.96,0.0)
 	deco_root.add_child(mesh)
 
-func _add_cloud(pos,scale_value,tint=Color.WHITE):
+func _add_cloud(pos,scale_value,tint=Color("f6fbff")):
 	var cloud = Node3D.new()
 	cloud.position = pos
 	deco_root.add_child(cloud)
@@ -249,7 +255,7 @@ func _add_cloud(pos,scale_value,tint=Color.WHITE):
 		puff.mesh = sphere
 		puff.position = Vector3(float(d[0]),float(d[1]),0)
 		puff.scale = Vector3(scale_value,scale_value*0.72,scale_value)
-		puff.material_override = make_mat(tint,0.9,0.0)
+		puff.material_override = make_mat(tint,0.92,0.0)
 		cloud.add_child(puff)
 
 func _add_crystal(pos,color):
@@ -259,9 +265,9 @@ func _add_crystal(pos,color):
 	mesh.mesh = prism
 	mesh.position = pos + Vector3(0,0.72,0)
 	mesh.rotation.z = randf_range(-0.2,0.2)
-	var mat = make_mat(color,0.16,0.03)
+	var mat = make_mat(color,0.24,0.03)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color.a = 0.88
+	mat.albedo_color.a = 0.86
 	mesh.material_override = mat
 	deco_root.add_child(mesh)
 
@@ -272,7 +278,7 @@ func _add_external_tree(pos,scale_value,color,yaw=0.0):
 		m.position = pos
 		m.scale = Vector3.ONE * scale_value
 		m.rotation.y = yaw
-		m.material_override = make_mat(color,0.82,0.0)
+		m.material_override = make_mat(color,0.88,0.0)
 		deco_root.add_child(m)
 	else:
 		_add_fallback_tree(pos,scale_value,color)
@@ -289,7 +295,7 @@ func _add_fallback_tree(pos,scale_value,color):
 	cyl.height = 1.0
 	trunk.mesh = cyl
 	trunk.position.y = 0.5
-	trunk.material_override = make_mat(Color("8b5f3c"),0.85,0.0)
+	trunk.material_override = make_mat(Color("70472c"),0.9,0.0)
 	root.add_child(trunk)
 	var crown = MeshInstance3D.new()
 	var sphere = SphereMesh.new()
@@ -297,7 +303,7 @@ func _add_fallback_tree(pos,scale_value,color):
 	sphere.height = 1.1
 	crown.mesh = sphere
 	crown.position.y = 1.25
-	crown.material_override = make_mat(color,0.84,0.0)
+	crown.material_override = make_mat(color,0.88,0.0)
 	root.add_child(crown)
 
 func _add_external_rock(pos,scale_value,color):
@@ -307,7 +313,7 @@ func _add_external_rock(pos,scale_value,color):
 		m.position = pos
 		m.scale = Vector3.ONE * scale_value
 		m.rotation.y = randf_range(-PI,PI)
-		m.material_override = make_mat(color,0.9,0.0)
+		m.material_override = make_mat(color,0.94,0.0)
 		deco_root.add_child(m)
 	else:
 		var rock = MeshInstance3D.new()
@@ -317,7 +323,7 @@ func _add_external_rock(pos,scale_value,color):
 		rock.mesh = sphere
 		rock.position = pos
 		rock.scale = Vector3(scale_value,scale_value*0.65,scale_value*0.8)
-		rock.material_override = make_mat(color,0.92,0.0)
+		rock.material_override = make_mat(color,0.95,0.0)
 		deco_root.add_child(rock)
 
 func clear_level():
@@ -378,10 +384,10 @@ func spawn_break_debris(position,size,color,kind):
 			box.size = Vector3(randf_range(0.12,0.30),randf_range(0.10,0.26),randf_range(0.12,0.25))
 			shape_mesh = box
 		mesh.mesh = shape_mesh
-		var mat = make_mat(color.lightened(randf_range(0.0,0.14)),0.5 if kind != 1 else 0.82,0.0)
+		var mat = make_mat(color.lightened(randf_range(0.0,0.08)),0.58 if kind != 1 else 0.88,0.0)
 		if kind == 2:
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			mat.albedo_color.a = 0.8
+			mat.albedo_color.a = 0.80
 		mesh.material_override = mat
 		piece.add_child(mesh)
 		fx_root.add_child(piece)
@@ -403,10 +409,10 @@ func spawn_impact(position,color,count=10):
 		sphere.radius = randf_range(0.035,0.07)
 		sphere.height = sphere.radius*2.0
 		mote.mesh = sphere
-		var mat = make_mat(color.lightened(randf_range(0.0,0.15)),0.25,0.0)
+		var mat = make_mat(color.lightened(randf_range(0.0,0.10)),0.30,0.0)
 		mat.emission_enabled = true
 		mat.emission = mat.albedo_color
-		mat.emission_energy_multiplier = 1.25
+		mat.emission_energy_multiplier = 0.65
 		mote.material_override = mat
 		holder.add_child(mote)
 		var target = Vector3(randf_range(-0.6,0.6),randf_range(-0.4,0.75),randf_range(-0.3,0.3))
@@ -419,8 +425,8 @@ func spawn_impact(position,color,count=10):
 func spawn_muzzle_flash(position,color):
 	var flash = OmniLight3D.new()
 	flash.light_color = color
-	flash.light_energy = 4.5
-	flash.omni_range = 2.8
+	flash.light_energy = 2.6
+	flash.omni_range = 2.5
 	fx_root.add_child(flash)
 	flash.global_position = position
 	var mesh = MeshInstance3D.new()
@@ -428,10 +434,10 @@ func spawn_muzzle_flash(position,color):
 	sphere.radius = 0.15
 	sphere.height = 0.3
 	mesh.mesh = sphere
-	var mat = make_mat(color,0.1,0.0)
+	var mat = make_mat(color,0.2,0.0)
 	mat.emission_enabled = true
 	mat.emission = color
-	mat.emission_energy_multiplier = 2.7
+	mat.emission_energy_multiplier = 1.15
 	mesh.material_override = mat
 	flash.add_child(mesh)
 	var tween = create_tween()
