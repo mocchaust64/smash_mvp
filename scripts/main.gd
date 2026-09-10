@@ -1,7 +1,7 @@
 extends Node3D
 
 const WorldArtScript = preload("res://scripts/world_art.gd")
-const UIScript = preload("res://scripts/game_ui.gd")
+const UIScript = preload("res://scripts/game_ui_v2.gd")
 const ProjectileScript = preload("res://scripts/projectile.gd")
 const LevelData = preload("res://scripts/level_data.gd")
 const AudioLabScript = preload("res://scripts/audio_lab.gd")
