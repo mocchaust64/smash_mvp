@@ -1,0 +1,23 @@
+[application]
+config/name="Smash MVP Godot"
+run/main_scene="res://scenes/Main.tscn"
+
+[autoload]
+GameEvents="*res://scripts/game_events.gd"
+
+[display]
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/size/window_width_override=720
+window/size/window_height_override=1280
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+
+audio/buses/default_bus_layout="res://default_bus_layout.tres"
+
+[physics]
+3d/default_gravity=22.0
